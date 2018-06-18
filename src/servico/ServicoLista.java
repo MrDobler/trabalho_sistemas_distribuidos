@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Stack;
 
-import cliente.Cliente;
 import item.Item;
 
 public class ServicoLista extends UnicastRemoteObject implements ServicoListaInterface {
@@ -62,7 +60,6 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 
 	@Override
 	public void addItem(String nome, int quant) throws RemoteException {
-		Scanner s = new Scanner(System.in);
 		Item item = new Item();
 		item.setNome(new StringBuilder(nome));
 		item.setQuant(quant);
@@ -95,6 +92,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 			}				
 		}
 	}
+	
 	
 	private boolean clientesCriados() {
 		return (clienteA != 0L && clienteB != 0L);

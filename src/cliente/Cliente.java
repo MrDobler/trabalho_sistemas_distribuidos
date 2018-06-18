@@ -1,5 +1,6 @@
 package cliente;
 
+import java.awt.BorderLayout;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -8,11 +9,14 @@ import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import item.Item;
 import servico.ServicoLista;
@@ -41,19 +45,12 @@ public class Cliente {
 			System.out.println("\nException : " + e.toString());
 		}
 	}
-
-	private static void limpaBuffer(Scanner s) {
-		s.nextLine();
-	}
 	
 	public static void interfaceCliente(ServicoListaInterface servico, long idCliente) throws RemoteException {
-		Scanner s = new Scanner(System.in);
 		String[] valores = {"Sair", "Adicionar Item", "Remover Item", "Mostrar Lista"};
-		int op;
-		String resp;
 		if (servico.minhaVez()) {
 			while(servico.idConfirmou() != idCliente) {
-				Object opcao = JOptionPane.showInputDialog(null,  "Escolha uma opção", "Menu de Opções" , JOptionPane.DEFAULT_OPTION, null, valores, "Adicionar Item");
+				Object opcao = JOptionPane.showInputDialog(null,  "Escolha uma opção - "+idCliente, "Menu de Opções" , JOptionPane.DEFAULT_OPTION, null, valores, "Adicionar Item");
 				if (opcao == "Adicionar Item") {
 					JTextField nome = new JTextField(20);
 					JTextField quant = new JTextField(20);
@@ -79,25 +76,28 @@ public class Cliente {
 					int result = JOptionPane.showConfirmDialog(null, panel,
 					        "Remover Item", JOptionPane.OK_CANCEL_OPTION);
 					checaOpcao(result);
+			
 					servico.removeItem(nome.getText());
 				}
 				
 				if (opcao == "Mostrar Lista") {
+					
 					mostraLista(servico.getLista());
+					servico.trocaVez();
 					interfaceCliente(servico, idCliente);
 				}
 				
-				System.out.println("Confirmar lista? s/n");
-				resp = s.nextLine();
-				if (resp.equals("s")) {
+				if (checaOpcao(confirmar())) {
 					servico.confirmar(idCliente);
 					servico.trocaVez();
-					interfaceCliente(servico, idCliente);
-				}	
-				interfaceCliente(servico, idCliente);
+					interfaceCliente(servico, idCliente);					
+				} else {
+					interfaceCliente(servico, idCliente);					
+				}
+				
 			}
 		} else {
-			System.out.println("Espere a sua vez");
+			JOptionPane.showMessageDialog(null, "Espere a sua vez.", "Mensagem Informativa", 0);
 			while(!servico.minhaVez()) {
 				
 			}
@@ -106,16 +106,33 @@ public class Cliente {
 	}
 	
 	public static void mostraLista(List<Item> lista) throws RemoteException {
+		JFrame frame = new JFrame("Mostrar Lista de Casamento");
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		JTable table = new JTable(new DefaultTableModel(null, new Object[]{"ID", "Nome", "Quantidade"}));
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		
+		JScrollPane tableContainer = new JScrollPane(table);
+		panel.add(tableContainer, BorderLayout.CENTER);
+        frame.getContentPane().add(panel);
+
+        frame.pack();
+        frame.setVisible(true);
+		
 		int i = 1;
-		System.out.println("=========== Lista De Casamento ===========");
 		for (Item it: lista) {
-			System.out.println("#"+i+"\tNome:"+it.getNome()+"\t Quantidade: "+it.getQuant());			
+			model.addRow(new Object[] {i, it.getNome(), it.getQuant()});
 			i++;
 		}
 	}
 	
 	public static boolean checaOpcao(int result) {
 		return result == JOptionPane.OK_OPTION;
+	}
+	
+	public static int confirmar() {
+		int escolha = JOptionPane.showOptionDialog(null, "Deseja confirmar a lista?", "Confirmação", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, null, null);
+		return escolha;
 	}
 
 }
