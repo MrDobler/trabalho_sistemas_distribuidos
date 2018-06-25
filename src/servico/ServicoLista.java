@@ -5,41 +5,49 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
 
-import item.Item;
+import shared.Item;
+import shared.Status;
+import shared.Turno;
 
 public class ServicoLista extends UnicastRemoteObject implements ServicoListaInterface {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static List<Item> listaCasamento = new ArrayList<Item>();
-
-	private static final String SERVICO = "ServicoMensagens";
-	private static final String SERVIDOR = "127.0.0.1";
+	private Status status;
+	
+	private List<Item> listaCasamento = new ArrayList<Item>();
+	private Turno turno = new Turno();
 	
 	private static long clienteA = 0L;
 	private static long clienteB = 0L;
 	private long idConfirmou;
 	private static boolean vez = false;
- 
-	
-	
-	
-	public ServicoLista() throws RemoteException {
-		super();
-	}
 	
 
-	
-	public static String getURI() {
-		return "//"+SERVIDOR+"/"+SERVICO;
+	public ServicoLista() throws RemoteException {
+		super();
+		this.status = Status.ESPERANDO_CONJUGES;
 	}
+	
 
 	
 	@Override
 	public void confirmar(long id) throws RemoteException {
-		this.idConfirmou = id;
+		System.out.println("---------- CONFIRMAR ----------");
+		System.out.println("Clienta A: " + clienteA);
+		System.out.println("Cliente B: " + clienteB);
+		System.out.println("ID: " + id);
+		
+		if(id == clienteA) {
+			System.out.println("Igual A");
+			this.turno.clienteAConfirmado = true;
+		} else if(id == clienteB) {
+			System.out.println("Igual b");
+			this.turno.clienteBConfirmado = true;
+		}
+		
+		System.out.println("-------- CONFIRMA FIM -===------");
 	}
 	
 	@Override
@@ -52,11 +60,17 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 
 	}
 	
-	@Override
-	public void teste() throws RemoteException {
-		System.out.println("ID Cliente A: "+clienteA+"\t"+"ID Cliente B: "+clienteB);
-		System.out.println("\n"+vez);
-	}
+//	@Override
+//	public void teste() throws RemoteException {
+//		System.out.println("ID Cliente A: "+clienteA+"\t"+"ID Cliente B: "+clienteB);
+//		System.out.println("\n"+vez);
+//		int i = 1;
+//		for (Item it: listaCasamento) {
+//			model.addRow(new Object[] {i, it.getNome(), it.getQuant()});
+//			System.out.println("ID"+i+"\t Nome: "+it.getNome());
+//			i++;
+//		}
+//	}
 
 	@Override
 	public void addItem(String nome, int quant) throws RemoteException {
@@ -67,8 +81,8 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	}
 	
 	@Override
-	public List<Item> getLista() throws RemoteException {
-		return listaCasamento;
+	public Iterable<Item> getLista() throws RemoteException {
+		return this.listaCasamento;
 	}
 
 	@Override
@@ -84,28 +98,42 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	
 	@Override
 	public void setIdCliente(long id) throws RemoteException {
-		if (!clientesCriados()) {
-			if (clienteA == 0L) {
-				clienteA = id;
-			} else {
-				clienteB = id;
-			}				
+		System.out.println("Cliente A: " + clienteA);
+		System.out.println("Cliente B: " + clienteB);
+		System.out.println("Cliente ID: " + id);
+		System.out.println("Status: " + this.status);
+		
+		if (clienteA == 0L) {
+			clienteA = id;
+			this.turno.setIdUsuario(id);
+			this.status = Status.ESPERANDO_CONJUGES;
+		} else if(clienteB == 0L) {
+			clienteB = id;
+			this.status = Status.RODANDO;
 		}
-	}
-	
-	
-	private boolean clientesCriados() {
-		return (clienteA != 0L && clienteB != 0L);
+		
+		System.out.println("Status: " + this.status);
 	}
 	
 	@Override
-	public boolean minhaVez() throws RemoteException {
-		return vez;
+	public void mudarTurno(long clienteID) throws RemoteException {
+		if(clienteID == clienteA)
+			this.turno.setIdUsuario(clienteB);
+		else if(clienteID == clienteB)
+			this.turno.setIdUsuario(clienteA);
 	}
 	
 	@Override
-	public void trocaVez() throws RemoteException {
-		vez = !vez;
+	public boolean checkMeuTurno(long clienteID) throws RemoteException {
+		return this.turno.eMeuTurno(clienteID);
 	}
 	
+	@Override
+	public long getIDTurno() throws RemoteException{
+		return this.turno.getIdUsuario();
+	}
+	
+	public Status getStatus() throws RemoteException {
+		return this.status;
+	}
 }
