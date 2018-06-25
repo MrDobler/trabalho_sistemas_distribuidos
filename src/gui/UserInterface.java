@@ -41,7 +41,7 @@ public class UserInterface {
 			boolean meuTurno = servico.checkMeuTurno(idCliente);
 			System.out.println(meuTurno);
 			if (meuTurno) {
-				servico.teste();
+//				servico.teste();
 				
 				MenuDeOpcoes(idCliente);
 

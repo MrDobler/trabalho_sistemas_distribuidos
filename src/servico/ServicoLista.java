@@ -22,7 +22,6 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	private static long clienteA = 0L;
 	private static long clienteB = 0L;
 	private long idConfirmou;
-	private static boolean vez = false;
 	
 
 	public ServicoLista() throws RemoteException {
