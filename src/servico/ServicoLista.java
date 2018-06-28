@@ -49,6 +49,10 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 		System.out.println("-------- CONFIRMA FIM -===------");
 	}
 	
+	public boolean checkConfirmacao() {
+		return this.turno.clienteAConfirmado && this.turno.clienteBConfirmado;
+	}
+	
 	@Override
 	public long idConfirmou() throws RemoteException {
 		return this.idConfirmou;
@@ -84,15 +88,20 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 		return this.listaCasamento;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void removeItem(String nomeItemARemover) {
-		StringBuilder itemDaLista = new StringBuilder();
-		for (Iterator<Item> iter = listaCasamento.listIterator(); iter.hasNext();) {
-			itemDaLista = iter.next().getNome();
-			if (itemDaLista.equals(new StringBuilder(nomeItemARemover))) {
+		StringBuilder itemDaLista = new StringBuilder(nomeItemARemover);
+	
+		for (Iterator<Item> iter = listaCasamento.iterator(); iter.hasNext();) {
+			System.out.println("Nome digitado: "+itemDaLista+"\nAchou:"+ iter.next().getNome().toString().equals(itemDaLista.toString()));
+			if (iter.next().getNome().toString().equals(itemDaLista.toString())) {
 				iter.remove();
+				listaCasamento = (List<Item>) iter;
 			}
 		}
+
+		
 	}
 	
 	@Override
@@ -134,5 +143,10 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	
 	public Status getStatus() throws RemoteException {
 		return this.status;
+	}
+	
+	@Override
+	public void setLista(Iterable<Item> lista) throws RemoteException {
+		this.listaCasamento = (List<Item>) lista;
 	}
 }

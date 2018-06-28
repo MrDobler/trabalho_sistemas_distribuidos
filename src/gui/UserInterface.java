@@ -49,19 +49,28 @@ public class UserInterface {
 				System.out.println("Confirma lista: " + confirma);
 				
 				if (confirma == JOptionPane.YES_OPTION) {
-					System.out.println("ENTOUR");
+					System.out.println("ENTROU");
 					servico.confirmar(idCliente);
 					servico.mudarTurno(idCliente);
 				} else {
-					System.out.println("NAO ENTORU");
+					System.out.println("NAO ENTROU");
 				}
+				
+				if (servico.checkConfirmacao()) {
+					statusDaAplicacao = Status.FINALIZADO;
+				}
+			} else if (statusDaAplicacao == Status.RODANDO && !servico.checkConfirmacao()) {
+				JOptionPane.showMessageDialog(null, "Espere o outro conjuge finalizar.", "Mensagem Informativa", 0);
 			} else {
-				JOptionPane.showMessageDialog(null, "Esperando conjuge finalizar.", "Mensagem Informativa", 0);
+				JOptionPane.showMessageDialog(null, "Espere, por favor.", "Mensagem Informativa", 0);
 			}
 		}
 		
-		if(statusDaAplicacao == Status.FINALIZADO)
+		if(statusDaAplicacao == Status.FINALIZADO) {
+			JOptionPane.showMessageDialog(null , "Lista finalizada cliente: "+idCliente, "Mensagem Informativa", 0);
 			mostraLista();
+			System.exit(3);
+		}
 	}
 	
 	public void MenuDeOpcoes(long idCliente) throws RemoteException {
@@ -135,6 +144,8 @@ public class UserInterface {
 			i++;
 		}
 		
+
+		
 		JTable table = new JTable(model);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setBounds(50,143,397,138);
@@ -143,6 +154,7 @@ public class UserInterface {
 		frame.add(new JScrollPane(table));
         frame.setVisible(true);
         frame.pack();
+        frame.setDefaultCloseOperation(1);;
 	}
 	
 }
