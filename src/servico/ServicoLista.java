@@ -157,15 +157,9 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 
 		try {
 			ServicoListaInterface servicoLista2 = (ServicoListaInterface) Naming.lookup("//"+ipServidor2+"/"+"servico");
-			while (true) {
-				Thread.sleep(5000);
-				servicoLista2.updateLista(lista);
-				servicoLista2.showLista(lista);				
-			}
-			
+			servicoLista2.updateLista(lista);
+			servicoLista2.showLista(lista);				
 		} catch (MalformedURLException | NotBoundException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
