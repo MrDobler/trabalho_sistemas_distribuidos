@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-
 import shared.Item;
 import shared.Status;
 import shared.Turno;
@@ -158,10 +157,15 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 
 		try {
 			ServicoListaInterface servicoLista2 = (ServicoListaInterface) Naming.lookup("//"+ipServidor2+"/"+"servico");
-			servicoLista2.updateLista(lista);
-			servicoLista2.showLista(lista);
+			while (true) {
+				Thread.sleep(5000);
+				servicoLista2.updateLista(lista);
+				servicoLista2.showLista(lista);				
+			}
 			
 		} catch (MalformedURLException | NotBoundException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
