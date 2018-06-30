@@ -1,9 +1,11 @@
 package servico;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import shared.Item;
@@ -24,12 +26,15 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	private long idConfirmou;
 	
 
+	private String ipServidor1 = "127.0.0.1";
+	private String ipServidor2 = "192.168.15.7";
+	
+	
 	public ServicoLista() throws RemoteException {
 		super();
 		this.status = Status.ESPERANDO_CONJUGES;
 	}
 	
-
 	
 	@Override
 	public void confirmar(long id) throws RemoteException {
@@ -49,6 +54,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 		System.out.println("-------- CONFIRMA FIM -===------");
 	}
 	
+	@Override
 	public boolean checkConfirmacao() {
 		return this.turno.clienteAConfirmado && this.turno.clienteBConfirmado;
 	}
@@ -57,24 +63,21 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	public long idConfirmou() throws RemoteException {
 		return this.idConfirmou;
 	}
-
+	
 	@Override
 	public void menu(long id) throws RemoteException {
 
 	}
 	
-//	@Override
-//	public void teste() throws RemoteException {
-//		System.out.println("ID Cliente A: "+clienteA+"\t"+"ID Cliente B: "+clienteB);
-//		System.out.println("\n"+vez);
-//		int i = 1;
-//		for (Item it: listaCasamento) {
-//			model.addRow(new Object[] {i, it.getNome(), it.getQuant()});
-//			System.out.println("ID"+i+"\t Nome: "+it.getNome());
-//			i++;
-//		}
-//	}
-
+	@Override
+	public void setIpServidor(String ip) {
+		if (this.ipServidor1 == null) {
+			this.ipServidor1 = ip;
+		} else if(this.ipServidor2 == null) {
+			this.ipServidor2 = ip;
+		}
+	}
+	
 	@Override
 	public void addItem(String nome, int quant) throws RemoteException {
 		Item item = new Item();
@@ -86,22 +89,6 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	@Override
 	public Iterable<Item> getLista() throws RemoteException {
 		return this.listaCasamento;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void removeItem(String nomeItemARemover) {
-		StringBuilder itemDaLista = new StringBuilder(nomeItemARemover);
-	
-		for (Iterator<Item> iter = listaCasamento.iterator(); iter.hasNext();) {
-			System.out.println("Nome digitado: "+itemDaLista+"\nAchou:"+ iter.next().getNome().toString().equals(itemDaLista.toString()));
-			if (iter.next().getNome().toString().equals(itemDaLista.toString())) {
-				iter.remove();
-				listaCasamento = (List<Item>) iter;
-			}
-		}
-
-		
 	}
 	
 	@Override
@@ -149,4 +136,34 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	public void setLista(Iterable<Item> lista) throws RemoteException {
 		this.listaCasamento = (List<Item>) lista;
 	}
+
+	@Override
+	public void updateLista(Iterable<Item> lista) {
+		this.listaCasamento = (List<Item>) lista;
+	}
+	
+	@Override
+	public void showLista(Iterable<Item> lista) {
+		System.out.println("LISTA: \n");
+		
+		int i = 1;
+		for (Item it : lista) {
+			System.out.println("Código: "+i+ "\tNome: "+it.getNome().toString()+"\tQuantidade: "+it.getQuant());
+			i++;
+		}
+	}
+	
+	@Override
+	public void enviaParaOutroServidor(Iterable<Item> lista) throws RemoteException {
+
+		try {
+			ServicoListaInterface servicoLista2 = (ServicoListaInterface) Naming.lookup("//"+ipServidor2+"/"+"servico");
+			servicoLista2.updateLista(lista);
+			servicoLista2.showLista(lista);
+			
+		} catch (MalformedURLException | NotBoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
