@@ -161,6 +161,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 			servicoLista2.showLista(lista);				
 		} catch (MalformedURLException | NotBoundException e) {
 			e.printStackTrace();
+			
 		}
 	}
 

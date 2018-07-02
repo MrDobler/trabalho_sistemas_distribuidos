@@ -31,15 +31,27 @@ public class UserInterface {
 	public void interfaceCliente(long idCliente) throws RemoteException {
 		Status statusDaAplicacao = servico.getStatus();
 		
-		while(statusDaAplicacao == Status.ESPERANDO_CONJUGES) {
+		do {
 			JOptionPane.showMessageDialog(null, "Esperando conjuge entrar.", "Mensagem Informativa", 0);
 			statusDaAplicacao = servico.getStatus();
-		}
+			try {
+				sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} while(statusDaAplicacao == Status.ESPERANDO_CONJUGES);
+
 		
-		while(statusDaAplicacao == Status.RODANDO) {
+		do {
 			boolean meuTurno = servico.checkMeuTurno(idCliente);
 			System.out.println(meuTurno);
 			if (meuTurno) {
+				try {
+					interrupt();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				if (!servico.checkConfirmacao()) {
 					int confirma;
 					MenuDeOpcoes(idCliente);
@@ -54,20 +66,30 @@ public class UserInterface {
 					} else {
 						continue;
 					}
+					
 				}
 				if (servico.checkConfirmacao()) {
 					statusDaAplicacao = Status.FINALIZADO;
 				}
 			} else {
-				JOptionPane.showMessageDialog(null, "Cliente: "+idCliente+"\nEspere, por favor.", "Mensagem Informativa", 0);
+//				JOptionPane.showMessageDialog(null, "Cliente: "+idCliente+"\nEspere, por favor.", "Mensagem Informativa", 0);
+				try {
+					sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-		}
+		} while(statusDaAplicacao == Status.RODANDO);
 		
 		if(statusDaAplicacao == Status.FINALIZADO) {
-			JOptionPane.showMessageDialog(null, "Lista finalizada cliente: "+idCliente, "Mensagem Informativa", JOptionPane.PLAIN_MESSAGE);
-			this.mostraLista(0);
-			System.exit(0);
+			finalizar(idCliente);
 		}
+	}
+	
+	public void finalizar(long idCliente) throws RemoteException {
+		JOptionPane.showMessageDialog(null, "Lista finalizada cliente: "+idCliente, "Mensagem Informativa", JOptionPane.PLAIN_MESSAGE);
+		this.mostraLista(0);
+		System.exit(0);
 	}
 	
 	public void MenuDeOpcoes(long idCliente) throws RemoteException {
@@ -155,6 +177,16 @@ public class UserInterface {
         	JOptionPane.showMessageDialog(null, "Clique aqui para prosseguir", "Mensagem Informativa", JOptionPane.WARNING_MESSAGE);
         
     	frame.dispose();
+	}
+	
+	private static void sleep(long segundos) throws InterruptedException {
+		Thread.currentThread();
+		Thread.sleep(segundos);
+	}
+	
+	private static void interrupt() throws InterruptedException {
+		Thread t = Thread.currentThread();
+		t.interrupt();
 	}
 	
 }
