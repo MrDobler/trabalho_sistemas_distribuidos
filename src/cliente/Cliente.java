@@ -5,6 +5,8 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import javax.swing.JOptionPane;
+
 import gui.UserInterface;
 import servico.ServicoListaInterface;
 
@@ -13,10 +15,16 @@ public class Cliente {
 	public long id;
 
 	public static void main(String[] args) {
-		if (args.length == 2) {
+		if (args.length == 0) {
 			try {
+				String ipServidor = null;
+				String op = JOptionPane.showInputDialog(null, "Escolha o servidor: \n1) Servidor 1\n2)Servidor 2"); 
+				if (op.equals("1"))
+					ipServidor = "127.0.0.1";
+				else
+					ipServidor = "192.168.15.7";
 				Cliente cli = new Cliente();
-				ServicoListaInterface servicoLista = (ServicoListaInterface) Naming.lookup("//"+args[0]+"/"+args[1]);
+				ServicoListaInterface servicoLista = (ServicoListaInterface) Naming.lookup("//"+ipServidor+"/"+"servico");
 				
 				cli.id = System.currentTimeMillis();
 				servicoLista.setIdCliente(cli.id);

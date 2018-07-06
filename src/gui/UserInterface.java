@@ -1,6 +1,7 @@
 package gui;
 
 import java.rmi.RemoteException;
+import java.util.InputMismatchException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -18,7 +19,8 @@ import shared.Status;
 
 public class UserInterface {
 	ServicoListaInterface servico;
-
+	String nomeCliente;
+	
 	public static class Valores {
 		public static String ADICIONAR_ITEM = "Adicionar Item";
 		public static String MOSTRAR_LISTA = "Mostrar Lista";
@@ -30,9 +32,9 @@ public class UserInterface {
 	
 	public void interfaceCliente(long idCliente) throws RemoteException {
 		Status statusDaAplicacao = servico.getStatus();
+		this.nomeCliente = servico.getNomeCliente(idCliente);
 		
 		do {
-			JOptionPane.showMessageDialog(null, "Esperando conjuge entrar.", "Mensagem Informativa", 0);
 			statusDaAplicacao = servico.getStatus();
 			try {
 				sleep(500);
@@ -46,40 +48,68 @@ public class UserInterface {
 			boolean meuTurno = servico.checkMeuTurno(idCliente);
 			System.out.println(meuTurno);
 			if (meuTurno) {
-				try {
-					interrupt();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				
 				if (!servico.checkConfirmacao()) {
 					int confirma;
-					MenuDeOpcoes(idCliente);
+					menuDeOpcoes(idCliente);
 					
-					confirma = JOptionPane.showConfirmDialog(null, "Deseja confirmar a lista?");
+					confirma = JOptionPane.showConfirmDialog(null, "Deseja confirmar a lista?", null, JOptionPane.YES_OPTION);
 					System.out.println("Confirma lista: " + confirma);
 					
 					if (confirma == JOptionPane.YES_OPTION) {
 						System.out.println("ENTROU");
 						servico.confirmar(idCliente);
 						servico.mudarTurno(idCliente);
-					} else {
+					} else if (confirma == JOptionPane.NO_OPTION) {
 						continue;
+					} else {
+						statusDaAplicacao = Status.FINALIZADO;
 					}
-					
 				}
+				
+				if (servico.possoProsseguir(idCliente)) {
+					System.out.println("ClienteB confirmou");
+				} else {
+					while(!servico.liberarProxEtapa()) 
+					try {
+						System.out.println("Esperando proxima etapa");
+						sleep(500);
+					} catch (InterruptedException e) {
+						
+						e.printStackTrace();
+					}
+				}
+	
+				
+					
+				if (servico.podeFinalizar(idCliente)) {
+					int ok = JOptionPane.showConfirmDialog(null, nomeCliente+"\nDeseja confirmar e finalizar?", null, JOptionPane.YES_OPTION, JOptionPane.YES_OPTION);
+					if (ok == JOptionPane.YES_OPTION)
+						servico.liberarOutroCliente();
+				} else {
+					while (!servico.checkLiberacao()) {
+							try {
+								System.out.println("Esperando ultima liberação.");
+								sleep(500);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+					}
+				}
+	
 				if (servico.checkConfirmacao()) {
 					statusDaAplicacao = Status.FINALIZADO;
 				}
 			} else {
-//				JOptionPane.showMessageDialog(null, "Cliente: "+idCliente+"\nEspere, por favor.", "Mensagem Informativa", 0);
 				try {
-					sleep(3000);
+					sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
+			
 		} while(statusDaAplicacao == Status.RODANDO);
+		
 		
 		if(statusDaAplicacao == Status.FINALIZADO) {
 			finalizar(idCliente);
@@ -87,32 +117,47 @@ public class UserInterface {
 	}
 	
 	public void finalizar(long idCliente) throws RemoteException {
-		JOptionPane.showMessageDialog(null, "Lista finalizada cliente: "+idCliente, "Mensagem Informativa", JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(null, "Lista finalizada cliente: "+nomeCliente, "Mensagem Informativa", JOptionPane.PLAIN_MESSAGE);
 		this.mostraLista(0);
+		servico.resetVars();
 		System.exit(0);
 	}
 	
-	public void MenuDeOpcoes(long idCliente) throws RemoteException {
+	public void erro() throws RemoteException {
+		JOptionPane.showMessageDialog(null, "Aconteceu algum erro!\nO programa será finalizado.", "Mensagem de Erro", JOptionPane.ERROR_MESSAGE);
+		servico.resetVars();
+		System.exit(1);
+	}
+	
+	public void menuDeOpcoes(long idCliente) throws RemoteException {
 		String[] valores = {Valores.ADICIONAR_ITEM, Valores.MOSTRAR_LISTA};
 		String opcao;
-		if (servico.checkConfirmacao()) {
-			JOptionPane.showMessageDialog(null, "O outro cliente já confirmou a lista!", "Mensagem informativa", 0);
-		}
-		opcao = (String) JOptionPane.showInputDialog(null,  "Escolha uma opção - "+idCliente, "Menu de Opções" , JOptionPane.QUESTION_MESSAGE, null, valores, "Adicionar Item");			
+	
+		opcao = (String) JOptionPane.showInputDialog(null,  "Escolha uma opção - "+nomeCliente, "Menu de Opções" , JOptionPane.QUESTION_MESSAGE, null, valores, "Adicionar Item");			
 		
 		System.out.println("Opcao escolhida: " + opcao);
 		
 		if (opcao == Valores.ADICIONAR_ITEM) {
 			JTextField[] items = addItem();
-			
-			JTextField nome = items[0];
-			JTextField quant = items[1];
-			
-			int quantidade = Integer.parseInt(quant.getText());
-			
-			servico.addItem(nome.getText(), quantidade);
-			Iterable<Item> lista = servico.getLista();
-			servico.enviaParaOutroServidor(lista);
+			JTextField nome = null;
+			JTextField quant = null;
+
+			System.out.println("voltou com as vars");
+			try {
+				nome = items[0];
+				quant = items[1];
+				
+				int quantidade = Integer.parseInt(quant.getText());
+				
+				servico.addItem(nome.getText(), quantidade);
+				Iterable<Item> lista = servico.getLista();
+//				servico.enviaParaOutroServidor(lista);
+				
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Os valores informados não estão corretos.", "Mensagem Informativa", JOptionPane.ERROR_MESSAGE);
+				System.out.println(e.toString());
+			}
+
 		} else if (opcao == Valores.MOSTRAR_LISTA) {
 			mostraLista(1);
 		}

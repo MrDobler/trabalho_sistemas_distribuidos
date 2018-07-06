@@ -22,8 +22,10 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	
 	private static long clienteA = 0L;
 	private static long clienteB = 0L;
-	private long idConfirmou;
-	
+	private String nomeA;
+	private String nomeB;
+	private boolean finalizou = false;
+	private boolean liberacao = false;
 
 	private String ipServidor1 = "127.0.0.1";
 	private String ipServidor2 = "192.168.15.7";
@@ -59,8 +61,17 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	}
 	
 	@Override
-	public long idConfirmou() throws RemoteException {
-		return this.idConfirmou;
+	public boolean liberarProxEtapa() throws RemoteException {
+		return this.finalizou;
+	}
+	
+	@Override
+	public boolean possoProsseguir(long clienteID) throws RemoteException {
+		if (clienteID == clienteB) {
+			this.finalizou = true;
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -110,11 +121,37 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	}
 	
 	@Override
+	public String getNomeCliente(long id) throws RemoteException {
+		if (id == clienteA) {
+			return "Cliente 1";
+		} else {
+			return "Cliente 2";
+		}
+	}
+	
+	@Override
 	public void mudarTurno(long clienteID) throws RemoteException {
 		if(clienteID == clienteA)
 			this.turno.setIdUsuario(clienteB);
 		else if(clienteID == clienteB)
 			this.turno.setIdUsuario(clienteA);
+	}
+	
+	
+	@Override
+	public boolean podeFinalizar(long clienteID) {
+		return clienteID == clienteA;
+	}
+	
+	@Override
+	public boolean checkLiberacao() throws RemoteException {
+		return this.liberacao;
+	}
+	
+	
+	@Override
+	public void liberarOutroCliente() throws RemoteException {
+		this.liberacao = true;		
 	}
 	
 	@Override
@@ -163,6 +200,24 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 			e.printStackTrace();
 			
 		}
+	}
+	
+	@Override
+	public void resetVars() throws RemoteException{
+		clienteA = 0L;
+		clienteB = 0L;
+		this.listaCasamento = new ArrayList<Item>();
+		this.turno = new Turno();
+		this.finalizou = false;
+		this.liberacao = false;
+		System.out.println("Resetou as variáveis");
+	}
+
+
+	@Override
+	public long idConfirmou() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

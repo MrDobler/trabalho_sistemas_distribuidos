@@ -25,5 +25,14 @@ public interface ServicoListaInterface extends Remote {
 	public boolean checkMeuTurno(long id) throws RemoteException;
 	public long getIDTurno() throws RemoteException;
 	
+	
+	public String getNomeCliente(long id) throws RemoteException;
 	public Status getStatus() throws RemoteException;
+	public void resetVars() throws RemoteException;
+	
+	public boolean possoProsseguir(long id) throws RemoteException;
+	public boolean liberarProxEtapa() throws RemoteException;
+	public void liberarOutroCliente() throws RemoteException;
+	public boolean podeFinalizar(long id) throws RemoteException;
+	public boolean checkLiberacao() throws RemoteException;
 }
