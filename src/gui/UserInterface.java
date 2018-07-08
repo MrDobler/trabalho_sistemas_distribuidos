@@ -155,7 +155,7 @@ public class UserInterface {
 				
 				servico.addItem(nome.getText(), quantidade);
 				Iterable<Item> lista = servico.getLista();
-//				servico.enviaParaOutroServidor(lista);
+				servico.enviaParaOutroServidor(lista);
 				
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "Os valores informados não estão corretos.", "Mensagem Informativa", JOptionPane.ERROR_MESSAGE);
