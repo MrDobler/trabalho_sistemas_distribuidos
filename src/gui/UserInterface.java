@@ -1,7 +1,6 @@
 package gui;
 
 import java.rmi.RemoteException;
-import java.util.InputMismatchException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -81,19 +80,17 @@ public class UserInterface {
 				}
 	
 				
-					
 				if (servico.podeFinalizar(idCliente)) {
-					int ok = JOptionPane.showConfirmDialog(null, nomeCliente+"\nDeseja confirmar e finalizar?", null, JOptionPane.YES_OPTION, JOptionPane.YES_OPTION);
-					if (ok == JOptionPane.YES_OPTION)
-						servico.liberarOutroCliente();
+					JOptionPane.showMessageDialog(null, nomeCliente+"\nO outro cliente confirmou a lista, clique em Ok para finalizar.", "Mensagem Informativa", JOptionPane.INFORMATION_MESSAGE);
+					servico.liberarOutroCliente();
 				} else {
 					while (!servico.checkLiberacao()) {
-							try {
-								System.out.println("Esperando ultima liberação.");
-								sleep(500);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
+						try {
+							System.out.println("Esperando ultima liberação.");
+							sleep(500);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 	
@@ -231,11 +228,6 @@ public class UserInterface {
 	private static void sleep(long segundos) throws InterruptedException {
 		Thread.currentThread();
 		Thread.sleep(segundos);
-	}
-	
-	private static void interrupt() throws InterruptedException {
-		Thread t = Thread.currentThread();
-		t.interrupt();
 	}
 	
 }

@@ -22,8 +22,6 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	
 	private static long clienteA = 0L;
 	private static long clienteB = 0L;
-	private String nomeA;
-	private String nomeB;
 	private boolean finalizou = false;
 	private boolean liberacao = false;
 
