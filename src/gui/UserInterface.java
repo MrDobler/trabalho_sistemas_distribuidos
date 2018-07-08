@@ -119,7 +119,11 @@ public class UserInterface {
 	public void finalizar(long idCliente) throws RemoteException {
 		JOptionPane.showMessageDialog(null, "Lista finalizada cliente: "+nomeCliente, "Mensagem Informativa", JOptionPane.PLAIN_MESSAGE);
 		this.mostraLista(0);
+		//Reseta as variáveis do Servidor
 		servico.resetVars();
+		//Atualiza o outro servidor com a lista vazia.
+		Iterable<Item> lista = servico.getLista();
+		servico.enviaParaOutroServidor(lista);
 		System.exit(0);
 	}
 	
@@ -208,7 +212,7 @@ public class UserInterface {
 		
 		JTable table = new JTable(model);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setBounds(450,450,397,138);
+		table.setBounds(0,0,200,138);
 		
 		JFrame frame = new JFrame("Lista de Casamento");
 		frame.add(new JScrollPane(table));
