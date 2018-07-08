@@ -20,7 +20,7 @@ public class Cliente {
 				String ipServidor = null;
 				String op = JOptionPane.showInputDialog(null, "Escolha o servidor: \n1) Servidor 1\n2)Servidor 2"); 
 				if (op.equals("1"))
-					ipServidor = "127.0.0.1";
+					ipServidor = "192.168.15.4";
 				else
 					ipServidor = "192.168.15.7";
 				Cliente cli = new Cliente();

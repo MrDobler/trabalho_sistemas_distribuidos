@@ -27,7 +27,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	private boolean finalizou = false;
 	private boolean liberacao = false;
 
-	private String ipServidor1 = "127.0.0.1";
+	private String ipServidor1 = "192.168.15.4";
 	private String ipServidor2 = "192.168.15.7";
 	
 	
@@ -180,7 +180,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	
 	@Override
 	public void showLista(Iterable<Item> lista) {
-		System.out.println("LISTA: \n");
+		System.out.println("Atualizando Lista... \n");
 		
 		int i = 1;
 		for (Item it : lista) {
