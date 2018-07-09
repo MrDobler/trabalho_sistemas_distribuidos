@@ -15,8 +15,8 @@ public class Cliente {
 	public long id;
 
 	public static void main(String[] args) {
-		final String IP1 = "192.168.15.4";
-		final String IP2 = "192.168.15.7";
+		String IP1 = "192.168.15.4";
+		String IP2 = "192.168.15.7";
 		
 		if (args.length == 0) {
 			try {
