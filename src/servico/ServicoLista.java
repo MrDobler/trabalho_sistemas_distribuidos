@@ -25,8 +25,8 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	private boolean finalizou = false;
 	private boolean liberacao = false;
 
-	private String ipServidor1 = "192.168.15.4";
-	private String ipServidor2 = "192.168.15.7";
+	private String ipServidor1 = "";
+	private String ipServidor2 = "";
 	
 	
 	public ServicoLista() throws RemoteException {
