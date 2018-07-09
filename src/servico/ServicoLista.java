@@ -25,8 +25,8 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	private boolean finalizou = false;
 	private boolean liberacao = false;
 
-	private String ipServidor1 = "";
-	private String ipServidor2 = "";
+	private String ipServidor1 = null;
+	private String ipServidor2 = null;
 	
 	
 	public ServicoLista() throws RemoteException {
@@ -81,7 +81,7 @@ public class ServicoLista extends UnicastRemoteObject implements ServicoListaInt
 	}
 	
 	@Override
-	public void setIpServidor(String ip) {
+	public void setIpServidor(String ip) throws RemoteException {
 		if (this.ipServidor1 == null) {
 			this.ipServidor1 = ip;
 		} else if(this.ipServidor2 == null) {
