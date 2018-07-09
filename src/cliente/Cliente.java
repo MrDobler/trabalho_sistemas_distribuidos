@@ -15,16 +15,27 @@ public class Cliente {
 	public long id;
 
 	public static void main(String[] args) {
+		final String IP1 = "192.168.15.4";
+		final String IP2 = "192.168.15.7";
+		
 		if (args.length == 0) {
 			try {
 				String ipServidor = null;
 				String op = JOptionPane.showInputDialog(null, "Escolha o servidor: \n1) Servidor 1\n2)Servidor 2"); 
+				
 				if (op.equals("1"))
-					ipServidor = "192.168.15.4";
+					ipServidor = IP1;
 				else
-					ipServidor = "192.168.15.7";
+					ipServidor = IP2;
+				
 				Cliente cli = new Cliente();
 				ServicoListaInterface servicoLista = (ServicoListaInterface) Naming.lookup("//"+ipServidor+"/"+"servico");
+				
+				servicoLista.setIpServidor(ipServidor);
+				if (ipServidor == IP1) 
+					servicoLista.setIpServidor(IP2);
+				else
+					servicoLista.setIpServidor(IP1);
 				
 				cli.id = System.currentTimeMillis();
 				servicoLista.setIdCliente(cli.id);
